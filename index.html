@@ -312,6 +312,7 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
 .teaser .cover { aspect-ratio: 1; background: var(--accent); }
 .teaser .cover:hover .glyph { background: var(--ink); color: var(--accent); }
 .tile.gl { background: var(--accent); border-color: var(--accent); }
+.tile.end p:not(.u) { font-size: 10.5px; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
 .colophon { font-size: 13px; color: var(--ink-soft); display: grid; gap: 8px; max-width: 64ch; border-top: 1px solid var(--rule); padding-top: 14px; }
 .colophon strong { color: var(--ink); }
 
@@ -432,7 +433,7 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
     {
       id: 'interruptions', glyph: 'dashes',
       date: '2026-10-15',
-      title: 'Nine minutes, with interruptions',
+      title: 'Next semester, I’m opening my critical theory class with the first 9 minutes of this BBC interview with Meredith Whittaker.',
       dek: 'A small defense of the humanities, which apparently we still need in 2026.',
       tags: 'with @meredith._.meredith · full interview on @bbcnews youtube channel',
       reel: 'mw4',
@@ -476,7 +477,7 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
     {
       id: 'shortest-passage', glyph: 'half-moon',
       date: '2026-10-07',
-      title: 'The shortest passage I could write',
+      title: 'Don’t use AI to make art. Use childhood trauma like a real artist.',
       dek: 'Straight from my DMs, without becoming a populist.',
       tags: 'video via @books_with_bell with @lbardugo · paintings by @margaretkeane',
       reel: 'bardugo',
@@ -569,7 +570,7 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
   // images get their description and caption, clips need nothing.
   const FR = {
     interruptions: {
-      title: 'Neuf minutes, avec interruptions',
+      title: 'Le semestre prochain, j’ouvre mon cours de théorie critique avec les 9 premières minutes de cet entretien de Meredith Whittaker à la BBC.',
       dek: 'Une petite défense des sciences humaines, dont on a apparemment encore besoin en 2026.',
       slides: [
         { alt: 'Portrait de Meredith Whittaker sur un fond d’aquarelle pâle. Par-dessus, en vert et en anglais : « Next semester, I’m opening my critical theory class with the first 9 minutes of this BBC interview with Meredith Whittaker. » (Le semestre prochain, j’ouvre mon cours de théorie critique avec les 9 premières minutes de cet entretien de Meredith Whittaker à la BBC.)' },
@@ -608,7 +609,7 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
       ]
     },
     'shortest-passage': {
-      title: 'Le passage le plus court que je pouvais écrire',
+      title: 'N’utilisez pas l’IA pour faire de l’art. Utilisez vos traumas d’enfance, comme un vrai artiste.',
       dek: 'Tout droit sorti de mes DM, sans devenir populiste.',
       slides: [
         { alt: 'Tableau de Margaret Keane : des enfants aux grands yeux chantent dans la neige, l’un d’eux tient un recueil de chants. Par-dessus, en vert et en anglais : « Don’t use AI to make art. Use childhood trauma like a real artist. » (N’utilisez pas l’IA pour faire de l’art. Utilisez vos traumas d’enfance, comme un vrai artiste.)' },
