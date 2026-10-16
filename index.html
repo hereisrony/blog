@@ -820,15 +820,19 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
     en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     fr: ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre']
   };
-  // Reading time, for essays and prose only: worked out on the English
-  // version (original or translation) at about 220 words a minute, plus the
-  // running time of any clips, and shown the same in both languages.
+  // Reading time, for essays and prose only. Worked out on the English version
+  // (original or translation) at 170 words a minute, which suits dense,
+  // slow-read writing, plus the running time of the clips and a few seconds
+  // for every image, rounded up, and shown the same in both languages.
+  // A post can set its own with `minutes: 12`.
   const readTime = p => {
     if (!['essay', 'prose'].includes(p.kind || 'essay')) return '';
     const en = localize(p, 'en');
     const words = [en.title, en.dek, ...en.slides.flatMap(x => x.t || (x.h ? [x.h] : []))].join(' ').replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
     const secs = en.slides.filter(x => x.v).reduce((a, x) => { const [m, sec] = x.dur.split(':').map(Number); return a + m * 60 + sec; }, 0);
-    return `<span class="rt"> · ${Math.max(1, Math.round(words / 220 + secs / 60))} min</span>`;
+    const images = en.slides.filter(x => x.i).length;
+    const min = p.minutes || Math.max(1, Math.ceil(words / 170 + secs / 60 + images * 0.25));
+    return `<span class="rt"> · ${min} min</span>`;
   };
   const dateHTML = (iso, lg) => {
     const [y, m, d] = iso.split('-').map(Number);
