@@ -978,6 +978,19 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
   // ---- feed -------------------------------------------------------------
   // The opening shown under a title: whole when short, its first sentences when a prose paragraph runs long.
   const stanzas = p => p.slides.filter(x => x.poem).map(x => `<p class="stanza">${x.poem.map(l => `<span class="line">${l}</span>`).join('')}</p>`).join('');
+  // A poem in the feed shows its first four lines, then an ellipsis, like the other texts show an opening.
+  const poemPreview = p => {
+    let left = 4, cut = false; const groups = [];
+    for (const x of p.slides.filter(s => s.poem)) {
+      if (left <= 0) { cut = true; break; }
+      const ls = x.poem.slice(0, left);
+      groups.push(ls); left -= ls.length;
+      if (ls.length < x.poem.length) { cut = true; break; }
+    }
+    if (p.slides.filter(s => s.poem).length > groups.length) cut = true;
+    if (cut) { const g = groups[groups.length - 1]; g[g.length - 1] += ' …'; }
+    return groups.map(g => `<p class="stanza">${g.map(l => `<span class="line">${l}</span>`).join('')}</p>`).join('');
+  };
   const teaser = p => {
     const t = p.slides.find(x => x.t).t[0];
     if (p.kind !== 'prose') return t;
@@ -1005,7 +1018,7 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
         const p = localize(it.p, lang), W = L[p.lang];
         const auto = p.auto ? `<p class="auto">${W.auto}</p>` : '';
         const text = p.kind === 'poem'
-          ? `<h2><a href="#${p.id}">${p.title}</a></h2><div class="poem">${stanzas(p)}</div>`
+          ? `<h2><a href="#${p.id}">${p.title}</a></h2><div class="poem">${poemPreview(p)}</div>`
           : p.kind === 'note' ? `<p class="note-line"><a href="#${p.id}">${p.title}</a></p>`
           : `<h2><a href="#${p.id}">${p.title}</a></h2><p>${teaser(p)}</p>`;
         h += `<article class="entry" id="e-${p.id}">
