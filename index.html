@@ -317,6 +317,37 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
 .colophon strong { color: var(--ink); }
 
 @media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto !important; transition: none !important; } }
+/* quiet: words instead of buttons */
+.word { font: inherit; background: none; border: 0; padding: 0; color: var(--ink-soft); cursor: pointer; }
+.word:hover { color: var(--ink); }
+.word[aria-pressed="true"] { color: var(--ink); background: var(--accent); color: var(--on-accent); padding: 0 3px; }
+.forms { display: flex; flex-wrap: wrap; gap: 6px 18px; align-items: baseline; font-size: 14px; margin-bottom: 40px; }
+.forms .spacer { flex: 1; }
+.sep { color: var(--rule); margin: 0 -10px; }
+.modes .sep { margin: 0 6px; }
+.feed { gap: 52px; }
+.entry { display: grid; gap: 12px; }
+.date { display: block; font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--ink); white-space: nowrap; }
+.date b { background: var(--accent); color: var(--on-accent); padding: 0 4px; }
+.post-head .date { font-size: 15px; }
+.teaser { display: grid; gap: 18px; grid-template-columns: 1fr; }
+@media (min-width: 620px) { .teaser { grid-template-columns: 160px 1fr; align-items: start; } }
+.teaser .cover { width: 160px; max-width: 100%; aspect-ratio: 1; }
+.teaser .body { display: grid; gap: 10px; }
+.teaser .body h2 { font-size: 20px; }
+.auto, .cap { font-size: 12px; color: var(--ink-soft); }
+.more { font-size: 13px; color: var(--ink-soft); }
+.more:hover { color: var(--ink); }
+.toolbar { border: 0; padding: 0; font-size: 13px; color: var(--ink-soft); gap: 8px 16px; }
+.lnote { display: block; margin: 0; padding: 0; max-width: none; background: none; font-size: 13px; line-height: 1.5; color: var(--ink-soft); text-align: left; }
+.lnote .word { display: inline; }
+.lnote .word { color: var(--ink); text-decoration: underline; text-underline-offset: 3px; }
+.lnote .word:hover { background: var(--accent); color: var(--on-accent); text-decoration: none; }
+.clip .cap { margin-top: -2px; }
+.also { font-size: 13px; }
+.panel.text { justify-content: center; }
+.swipe-bar { gap: 14px; }
+.swipe-bar .btn { border: 0; padding: 0 4px; font-size: 16px; }
 </style>
 </head>
 <body>
@@ -340,7 +371,7 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
 
 <div class="wrap">
   <header class="mast">
-    <div class="name"><a href="#" class="home"><span class="gtile"><svg class="ic"><use href="#i-mark"/></svg></span>rony.blog</a><span class="spacer"></span><a class="about" href="https://www.ronyefrat.work/about/" target="_blank" rel="noopener"><svg class="ic" aria-hidden="true"><use href="#i-about"/></svg>about</a></div>
+    <div class="name"><a href="#" class="home"><span class="gtile"><svg class="ic"><use href="#i-mark"/></svg></span>rony.blog</a><span class="spacer"></span><a class="about" href="https://www.ronyefrat.work/about/" target="_blank" rel="noopener">about</a></div>
     <div id="intro">
       <h1>Written here first. Cut down for socials after.</h1>
       <p class="lede" style="margin-top:12px">Each post lives here in full, with text, images and clips. The Instagram and LinkedIn versions are made from it, and they all point back here.</p>
@@ -734,10 +765,10 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
     en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     fr: ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre']
   };
-  const dateHTML = (iso, lg, withYear) => {
+  const dateHTML = (iso, lg) => {
     const [y, m, d] = iso.split('-').map(Number);
     const md = lg === 'fr' ? `<b>${d}</b> ${MONTHS.fr[m - 1]}` : `${MONTHS.en[m - 1]} <b>${d}</b>`;
-    return `<time class="date" datetime="${iso}">${withYear ? `<span class="y">${y}</span>` : ''}<span class="md">${md}</span></time>`;
+    return `<time class="date" datetime="${iso}">${y}_${md}</time>`;
   };
 
   // ---- feed -------------------------------------------------------------
@@ -749,57 +780,31 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
       ...POSTS.map(p => ({ kind: p.kind || 'essay', date: p.date, p })),
       ...NOTES.map(n => ({ kind: 'note', date: n.date, n }))
     ].sort((a, b) => b.date.localeCompare(a.date));
-    const count = k => items.filter(x => x.kind === k).length;
     const C = L[lang].cats;
-    const chip = (k, n) => `<button class="chip" type="button" data-f="${k}" aria-pressed="${filter === k}">${FORM_ICON[k] ? ic(FORM_ICON[k]) : ''}${C[k]}<span class="n">${n}</span></button>`;
-    let h = `<div class="filters" role="group" aria-label="${lang === 'fr' ? 'Filtrer par forme' : 'Filter by form'}" style="margin-bottom:32px">${chip('all', items.length)}${['essay', 'poem', 'prose', 'note'].map(k => chip(k, count(k))).join('')}<span class="spacer"></span><span class="langpick" role="group" aria-label="Reading language">${ic('translate')}<button class="chip" type="button" data-lang="en" aria-pressed="${lang === 'en'}">EN</button><button class="chip" type="button" data-lang="fr" aria-pressed="${lang === 'fr'}">FR</button></span></div><div class="feed">`;
+    const word = (k) => `<button type="button" class="word" data-f="${k}" aria-pressed="${filter === k}">${C[k]}</button>`;
+    const lw = (x) => `<button type="button" class="word" data-lang="${x}" aria-pressed="${lang === x}" lang="${x}">${x}</button>`;
+    let h = `<nav class="forms" aria-label="${lang === 'fr' ? 'Formes' : 'Forms'}">${['all', 'essay', 'poem', 'prose', 'note'].map(word).join('')}<span class="spacer"></span>${lw('en')}<span class="sep">/</span>${lw('fr')}</nav><div class="feed">`;
     const shown = items.filter(it => filter === 'all' || filter === it.kind);
     if (!shown.length) h += `<p class="none">${L[lang].empty}</p>`;
-    let year = null;
     for (const it of shown) {
-      const y = it.date.slice(0, 4);
-      if (y !== year) { year = y; h += `<h2 class="year">${y}</h2>`; }
       if (it.p) {
-        const p = localize(it.p, lang), s = stats(p), W = L[p.lang];
-        const langs = `<span class="langs">${p.langs.map(x => x === p.orig ? `<b>${x.toUpperCase()}</b>` : x.toUpperCase()).join(' · ')}${p.auto ? ' · ' + W.auto : ''}</span>`;
-        const open = `<div class="open"><a class="btn solid" href="#${p.id}" data-mode="read">${ic('read')}${W.read}</a><a class="btn" href="#${p.id}" data-mode="swipe">${W.swipe}</a></div>`;
-        let inner;
-        if (p.kind === 'poem') {
-          inner = `<div class="teaser" lang="${p.lang}">
-            <a class="cover" href="#${p.id}" aria-label="${esc(plain(p.title))}" tabindex="-1">${glyph(p)}</a>
-            <div class="body"><div class="poem">${p.slides.flatMap(x => x.poem).map(l => `<span class="line">${l}</span>`).join('')}</div>${open}</div>
-          </div>`;
-        } else {
-          const first = p.slides.find(x => x.t).t[0];
-          const stat = `${s.panels} ${W.panels}${s.clips ? ` · ${s.clips} ${s.clips === 1 ? W.clip : W.clips} (${s.video})` : ''} · ${s.read} ${W.min}`;
-          inner = `<div class="teaser" lang="${p.lang}">
-            <a class="cover" href="#${p.id}" aria-label="${esc(plain(p.title))}" tabindex="-1">${glyph(p)}</a>
-            <div class="body">
-              <h2><a href="#${p.id}">${p.title}</a></h2>
-              <p>${first}</p>
-              <p class="stat">${stat}</p>
-              ${open}
-            </div>
-          </div>`;
-        }
-        h += `<article class="entry dated" id="e-${p.id}">
-          ${dateHTML(p.date, lang, false)}
-          <div class="entry-main">
-            <div class="meta"><span class="kind">${kindLine(p, s, W)}</span>${langs}</div>
-            ${inner}
+        const p = localize(it.p, lang), W = L[p.lang];
+        const auto = p.auto ? `<p class="auto">${W.auto}</p>` : '';
+        const text = p.kind === 'poem'
+          ? `<div class="poem">${p.slides.flatMap(x => x.poem).map(l => `<span class="line">${l}</span>`).join('')}</div>`
+          : `<h2><a href="#${p.id}">${p.title}</a></h2><p>${p.slides.find(x => x.t).t[0]}</p>`;
+        h += `<article class="entry" id="e-${p.id}">
+          ${dateHTML(p.date, lang)}
+          <div class="teaser" lang="${p.lang}">
+            <a class="cover" href="#${p.id}" aria-label="${esc(plain(p.title))}">${glyph(p)}</a>
+            <div class="body">${text}${auto}${p.kind === 'poem' ? `<a class="more" href="#${p.id}">${W.read}</a>` : ''}</div>
           </div>
         </article>`;
       } else {
         const n = it.n;
-        const body = n.img
-          ? `<div class="note-media"><figure><img src="${n.img.src}" alt="${esc(n.img.alt)}" loading="lazy"><figcaption>${n.img.caption}</figcaption></figure><div class="body">${n.html}</div></div>`
-          : `<div class="body">${n.html}</div>`;
-        h += `<article class="entry dated" id="e-${n.id}" lang="${n.lang || 'en'}">
-          ${dateHTML(n.date, lang, false)}
-          <div class="entry-main">
-            <div class="meta"><span class="kind">${ic(FORM_ICON.note)}${L[lang].note}</span></div>
-            <h2>${n.title}</h2>${body}
-          </div>
+        h += `<article class="entry" id="e-${n.id}" lang="${n.lang || 'en'}">
+          ${dateHTML(n.date, lang)}
+          <div class="body"><h2>${n.title}</h2>${n.html}</div>
         </article>`;
       }
     }
@@ -807,23 +812,21 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
     view.innerHTML = h;
     view.querySelectorAll('[data-f]').forEach(c => c.addEventListener('click', () => { filter = c.dataset.f; feed(); }));
     view.querySelectorAll('[data-lang]').forEach(c => c.addEventListener('click', () => { setLang(c.dataset.lang); feed(); }));
-    view.querySelectorAll('[data-mode]').forEach(a => a.addEventListener('click', () => store.set('nb-mode', a.dataset.mode)));
   }
 
   // ---- post -------------------------------------------------------------
   const clipHTML = (s, inPanel, lg) => `
-    <div class="who">${ic('clip')}<b>${s.who}</b><span>${s.src} · ${s.dur}</span></div>
     <video controls playsinline preload="none" poster="${M + s.v}-poster.webp" aria-label="${s.who}, ${s.src}, ${s.dur}">
       <source src="${M + s.v}.mp4" type="video/mp4">
       <track kind="captions" src="${vttURL.en[s.v]}" srclang="en" label="English"${lg === 'en' ? ' default' : ''}>
       <track kind="captions" src="${vttURL.fr[s.v]}" srclang="fr" label="Français (traduction automatique)"${lg === 'fr' ? ' default' : ''}>
-    </video>${inPanel ? '' : `<details class="tx"><summary>${L[lg].transcript}${lg === 'fr' ? ' (traduction automatique)' : ''}</summary><p>${esc(TXL[lg][s.v])}</p></details>`}`;
+    </video>${inPanel ? '' : `<p class="cap">${s.who}, ${s.src}</p><details class="tx"><summary>${L[lg].transcript}</summary><p>${esc(TXL[lg][s.v])}</p></details>`}`;
 
   function readHTML(p) {
     if (p.kind === 'poem') {
       return `<div class="read"><div class="poem big">${p.slides.flatMap(x => x.poem).map(l => `<span class="line">${l}</span>`).join('')}</div></div>`;
     }
-    const numbered = p.numbered !== false;
+    const numbered = false;
     return '<div class="read' + (numbered ? '' : ' plain') + '">' + p.slides.filter(s => !s.swipe).map((s, i) => {
       const n = numbered ? `<span class="num" aria-hidden="true">${pad(i + 1)}</span>` : '';
       if (s.h) return `<section class="slide head">${n}<div class="content"><h3 class="sub">${s.h}</h3></div></section>`;
@@ -844,9 +847,9 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
     const us = units(p), total = us.length;
     const panels = us.map((s, i) => {
       const lbl = `aria-label="${L[p.lang].panel} ${i + 1} ${L[p.lang].of} ${total}"`;
-      if (s.poem) return `<div class="panel text poem-panel" ${lbl}><span class="pn">${pad(i + 1)}</span><div class="poem">${s.poem.map(l => `<span class="line">${l}</span>`).join('')}</div></div>`;
-      if (s.h) return `<div class="panel text head-panel" ${lbl}><span class="pn">${pad(i + 1)}</span><h3 class="sub">${s.h}</h3></div>`;
-      if (s.t) return `<div class="panel text" ${lbl}><span class="pn">${pad(i + 1)}</span>${s.t.map(x => `<p>${x}</p>`).join('')}</div>`;
+      if (s.poem) return `<div class="panel text poem-panel" ${lbl}><div class="poem">${s.poem.map(l => `<span class="line">${l}</span>`).join('')}</div></div>`;
+      if (s.h) return `<div class="panel text head-panel" ${lbl}><h3 class="sub">${s.h}</h3></div>`;
+      if (s.t) return `<div class="panel text" ${lbl}>${s.t.map(x => `<p>${x}</p>`).join('')}</div>`;
       if (s.i && s.letter) return `<figure class="panel img letter" ${lbl}><img src="${M + s.i}" alt="${esc(s.alt)}" loading="lazy">${s.caption ? `<figcaption>${s.caption}</figcaption>` : ''}</figure>`;
       if (s.i) return `<figure class="panel img${s.contain ? ' contain' : ''}" ${lbl}><img src="${M + s.i}" alt="${esc(s.alt)}" loading="lazy"></figure>`;
       return `<div class="panel vid" ${lbl}>${clipHTML(s, true, p.lang)}</div>`;
@@ -858,7 +861,6 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
         <button class="btn prev" type="button" aria-label="${p.lang === 'fr' ? 'Panneau précédent' : 'Previous panel'}">←</button>
         <span class="count" aria-live="polite">1 / ${total}</span>
         <button class="btn next" type="button" aria-label="${p.lang === 'fr' ? 'Panneau suivant' : 'Next panel'}">→</button>
-        <span class="dots" aria-hidden="true">${dots}</span>
       </div>
     </div>`;
   }
@@ -935,14 +937,14 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
 
   // Says, in the language on screen, what the reader is looking at.
   function langNote(p) {
-    if (p.langs.length < 2) return '';
-    const poem = p.kind === 'poem';
-    if (p.auto && p.lang === 'fr') return `<div class="lnote" lang="fr"><span class="tag">${ic('translate')}traduction automatique</span><p>${poem ? 'Ce poème' : 'Ce texte'} a été écrit en ${LANG_NAME[p.orig].fr}. Cette version française a été traduite automatiquement et n’a pas été relue mot à mot.${poem ? ' Le rythme et les sons de l’original ne passent pas.' : ''} <button class="linkbtn" type="button" data-l="${p.orig}" lang="${p.orig}">${p.orig === 'en' ? 'Read the original in English →' : 'Lire l’original →'}</button></p></div>`;
-    if (p.auto) return `<div class="lnote" lang="en"><span class="tag">${ic('translate')}machine translation</span><p>This ${poem ? 'poem' : 'piece'} was written in ${LANG_NAME[p.orig].en}. This English version was translated automatically and has not been checked word by word.${poem ? ' The rhythm and sound of the original do not carry over.' : ''} <button class="linkbtn" type="button" data-l="${p.orig}" lang="${p.orig}">${p.orig === 'fr' ? 'Lire l’original en français →' : 'Read the original →'}</button></p></div>`;
+    if (p.langs.length < 2) return '<span></span>';
     const other = p.langs.find(x => x !== p.lang);
-    return `<div class="lnote quiet" lang="${other}"><p>${other === 'fr'
-      ? `Écrit en anglais. Une version française, traduite automatiquement, est disponible. <button class="linkbtn" type="button" data-l="fr">Lire en français →</button>`
-      : `Written in French. An English version, translated automatically, is available. <button class="linkbtn" type="button" data-l="en">Read in English →</button>`}</p></div>`;
+    if (p.auto) return p.lang === 'fr'
+      ? `<p class="lnote" lang="fr">Traduit automatiquement de l’${LANG_NAME[p.orig].fr}. <button type="button" class="word" data-l="${p.orig}">Lire l’original</button></p>`
+      : `<p class="lnote" lang="en">Translated automatically from ${LANG_NAME[p.orig].en}. <button type="button" class="word" data-l="${p.orig}">Read the original</button></p>`;
+    return other === 'fr'
+      ? `<p class="lnote" lang="fr"><button type="button" class="word" data-l="fr">En français</button> (traduction automatique)</p>`
+      : `<p class="lnote" lang="en"><button type="button" class="word" data-l="en">In English</button> (machine translation)</p>`;
   }
 
   function post(p0, mode) {
@@ -951,26 +953,18 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
     const p = localize(p0, lang), W = L[p.lang];
     const s = stats(p);
     const chans = CHANNELS.filter(c => !c.when || c.when(p));
-    const stat = p.kind === 'poem' ? `${s.lines} ${W.lines}` : `${s.panels} ${W.panels}${s.clips ? ` · ${s.clips} ${s.clips === 1 ? W.clip : W.clips}` : ''} · ${s.read} ${W.min}`;
-    const langSwitch = p.langs.length < 2 ? '' : `<div class="langswitch" role="group" aria-label="Language"><span class="lsi">${ic('translate')}</span>${p.langs.map(x => `<button class="chip" type="button" data-l="${x}" aria-pressed="${p.lang === x}" lang="${x}">${L[x].name}<span class="n">${x === p.orig ? L[x].orig : L[x].auto}</span></button>`).join('')}</div>`;
-    const also = p.also ? `<p class="also" lang="${p.lang}">${W.also} ${p.also.map(a => `<a href="${a.href}" target="_blank" rel="noopener">${a.label} ↗</a>`).join(', ')}</p>` : '';
+    const also = p.also ? `<p class="also" lang="${p.lang}">${W.also} ${p.also.map(a => `<a href="${a.href}" target="_blank" rel="noopener">${a.label}</a>`).join(', ')}</p>` : '';
     view.innerHTML = `<article class="post${p.kind === 'poem' ? ' is-poem' : ''}">
       <div class="post-head" lang="${p.lang}">
         <a class="back" href="#">${W.back}</a>
-        ${dateHTML(p.date, p.lang, true)}
-        <div class="meta"><span class="kind">${kindLine(p, s, W)}</span></div>
+        ${dateHTML(p.date, p.lang)}
         ${p.kind === 'poem' ? '' : `<h2>${p.title}</h2>`}
         ${p.dek ? `<p class="soft dek">${p.dek}</p>` : ''}
       </div>
-      ${langSwitch}
-      ${langNote(p)}
       <div class="toolbar" lang="${p.lang}">
-        <div class="modes" role="group" aria-label="${p.lang === 'fr' ? 'Mode de lecture' : 'Reading mode'}">
-          <button class="chip" type="button" data-m="read" aria-pressed="${mode === 'read'}">${ic('read')}${W.read}</button>
-          <button class="chip" type="button" data-m="swipe" aria-pressed="${mode === 'swipe'}">${W.swipe}</button>
-        </div>
+        ${langNote(p)}
         <span class="spacer"></span>
-        <span class="stat">${stat}</span>
+        <span class="modes" role="group" aria-label="${p.lang === 'fr' ? 'Mode de lecture' : 'Reading mode'}"><button type="button" class="word" data-m="read" aria-pressed="${mode === 'read'}">${W.read}</button><span class="sep">/</span><button type="button" class="word" data-m="swipe" aria-pressed="${mode === 'swipe'}">${W.swipe}</button></span>
       </div>
       <div id="stage" lang="${p.lang}">${mode === 'swipe' ? swipeHTML(p) : readHTML(p)}</div>
       ${also}
