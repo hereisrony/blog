@@ -13,6 +13,9 @@ favicon.svg  favicon-16.png  favicon-32.png
 apple-touch-icon.png  icon-512.png      the pentagon, on #00FF33
 <post>/  <post>/en/  <post>/fr/         short addresses that open a post,
                                         in a given language
+interruptions/  shortest-passage/  incroyable-talent/
+                      the posts' first addresses, kept so old links
+                      forward to whittaker/, ai-art/ and talent/
 CNAME                 rony.blog
 ```
 
