@@ -1399,15 +1399,32 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
 
   // ---- routing (bare #id only) -------------------------------------------
   const view = document.getElementById('view');
+  // the address bar always shows the short address (rony.blog/talent), the one that carries the preview
+  const here = () => {
+    const h = location.hash.slice(1); if (h) return h;
+    const s = location.pathname.replace(/^\/|\/$/g, '').split('/');
+    return s[1] ? s[0] + '-' + s[1] : s[0];
+  };
+  const clean = id => '/' + id.replace(/-(en|fr)$/, '/$1');
   function route() {
-    let id = location.hash.slice(1);
+    let id = here();
     const m = id.match(/^(.*)-(en|fr)$/);
     if (m && POSTS.some(x => x.id === m[1])) { id = m[1]; setLang(m[2]); }
     const p = POSTS.find(x => x.id === id);
+    if (location.hash) { try { history.replaceState(null, '', p ? clean(here()) : '/'); } catch (e) {} }
     if (p) { post(p, store.get('nb-mode') === 'swipe' ? 'swipe' : 'read'); scrollTo(0, 0); }
     else feed();
   }
   addEventListener('hashchange', route);
+  addEventListener('popstate', route);
+  document.addEventListener('click', e => {
+    const a = e.target.closest && e.target.closest('a[href^="#"]');
+    if (!a || e.metaKey || e.ctrlKey || e.shiftKey || e.button) return;
+    e.preventDefault();
+    const id = a.getAttribute('href').slice(1);
+    try { history.pushState(null, '', id ? clean(id) : '/'); } catch (err) { location.hash = id; return; }
+    route();
+  });
   route();
 })();
 </script>
