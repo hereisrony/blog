@@ -348,6 +348,10 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
 .panel.text { justify-content: center; }
 .swipe-bar { gap: 14px; }
 .swipe-bar .btn { border: 0; padding: 0 4px; font-size: 16px; }
+.when { margin: 0; font-size: 14px; }
+.when .date { display: inline; }
+.rt { color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+.post-head .when { font-size: 15px; }
 </style>
 </head>
 <body>
@@ -765,6 +769,16 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
     en: ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'],
     fr: ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre']
   };
+  // Reading time, for essays and prose only: worked out on the English
+  // version (original or translation) at about 220 words a minute, plus the
+  // running time of any clips, and shown the same in both languages.
+  const readTime = p => {
+    if (!['essay', 'prose'].includes(p.kind || 'essay')) return '';
+    const en = localize(p, 'en');
+    const words = [en.title, en.dek, ...en.slides.flatMap(x => x.t || (x.h ? [x.h] : []))].join(' ').replace(/<[^>]+>/g, ' ').split(/\s+/).filter(Boolean).length;
+    const secs = en.slides.filter(x => x.v).reduce((a, x) => { const [m, sec] = x.dur.split(':').map(Number); return a + m * 60 + sec; }, 0);
+    return `<span class="rt"> · ${Math.max(1, Math.round(words / 220 + secs / 60))} min</span>`;
+  };
   const dateHTML = (iso, lg) => {
     const [y, m, d] = iso.split('-').map(Number);
     const md = lg === 'fr' ? `<b>${d}</b> ${MONTHS.fr[m - 1]}` : `${MONTHS.en[m - 1]} <b>${d}</b>`;
@@ -794,7 +808,7 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
           ? `<div class="poem">${p.slides.flatMap(x => x.poem).map(l => `<span class="line">${l}</span>`).join('')}</div>`
           : `<h2><a href="#${p.id}">${p.title}</a></h2><p>${p.slides.find(x => x.t).t[0]}</p>`;
         h += `<article class="entry" id="e-${p.id}">
-          ${dateHTML(p.date, lang)}
+          <p class="when">${dateHTML(p.date, lang)}${readTime(it.p)}</p>
           <div class="teaser" lang="${p.lang}">
             <a class="cover" href="#${p.id}" aria-label="${esc(plain(p.title))}">${glyph(p)}</a>
             <div class="body">${text}${auto}${p.kind === 'poem' ? `<a class="more" href="#${p.id}">${W.read}</a>` : ''}</div>
@@ -957,7 +971,7 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
     view.innerHTML = `<article class="post${p.kind === 'poem' ? ' is-poem' : ''}">
       <div class="post-head" lang="${p.lang}">
         <a class="back" href="#">${W.back}</a>
-        ${dateHTML(p.date, p.lang)}
+        <p class="when">${dateHTML(p.date, p.lang)}${readTime(p0)}</p>
         ${p.kind === 'poem' ? '' : `<h2>${p.title}</h2>`}
         ${p.dek ? `<p class="soft dek">${p.dek}</p>` : ''}
       </div>
