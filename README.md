@@ -44,3 +44,18 @@ them again.
 DNS for rony.blog is at GoDaddy and points at GitHub Pages (four `A` records,
 four `AAAA` records and a `www` CNAME to `hereisrony.github.io`). Pages is set
 to deploy from the `main` branch, root folder.
+
+## Search and sharing
+
+`tools/build.mjs` reads `POSTS` and `TR` from `index.html` and writes the static
+side: a full page for every post and language (`<id>/index.html`,
+`<id>/en/`, `<id>/fr/`) with its own title, description, canonical address,
+`hreflang` links, share card and `BlogPosting` data, plus `sitemap.xml`,
+`robots.txt` and `feed.xml`. The author is named only in this hidden data
+(Rony Efrat, linked to https://www.ronyefrat.work/), never on screen.
+
+Run it after adding or editing a post, then commit everything it wrote:
+
+```
+node tools/build.mjs
+```
