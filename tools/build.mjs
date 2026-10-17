@@ -5,8 +5,20 @@ import fs from 'fs';
 import vm from 'vm';
 
 const SITE = 'https://rony.blog';
-const AUTHOR = { '@type': 'Person', name: 'Rony Efrat', jobTitle: 'Writer', url: 'https://www.ronyefrat.work/', sameAs: ['https://www.ronyefrat.work/'] };
-const TAGLINE = 'Essays, poems, prose and notes, in English and French.';
+// The same person as on ronyefrat.work: its @id ties both sites to one author.
+const PERSON_ID = 'https://www.ronyefrat.work/#person';
+const PERSON = { '@type': 'Person', '@id': PERSON_ID, name: 'Rony Efrat', url: 'https://www.ronyefrat.work/',
+  sameAs: ['https://www.ronyefrat.work/', 'https://www.instagram.com/hereisrony/', 'https://www.linkedin.com/in/hereisrony'] };
+const AUTHOR = { '@id': PERSON_ID };
+const BLOG_ID = 'https://rony.blog/#blog';
+const HOME = {
+  en: { path: '/', title: 'rony.blog ⋮ essays, poems, prose and notes', og: 'Essays, poems, prose and notes, in English and French.',
+        desc: 'Essays, poems, prose and notes by Rony Efrat, written in English and French, each with an automatic translation.', nav: 'posts' },
+  fr: { path: '/fr/', title: 'rony.blog ⋮ essais, poèmes, prose et notes', og: 'Essais, poèmes, prose et notes, en français et en anglais.',
+        desc: 'Essais, poèmes, prose et notes de Rony Efrat, écrits en français et en anglais, chacun avec une traduction automatique.', nav: 'publications' }
+};
+const TAGLINE = HOME.en.og;
+const LOCALE = { en: 'en_GB', fr: 'fr_FR' };
 const LEGACY = { interruptions: 'whittaker', 'shortest-passage': 'ai-art', 'incroyable-talent': 'talent' };
 
 let src = fs.readFileSync('index.html', 'utf8');
@@ -26,7 +38,7 @@ const NAME = { en: 'English', fr: 'French' }, NAME_FR = { en: 'anglais', fr: 'fr
 const MONTHS_FR = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
 const MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const dateLabel = (iso, lg) => { const [y, m, dd] = iso.split('-').map(Number); return lg === 'fr' ? `${y}_${dd} ${MONTHS_FR[m - 1]}` : `${y}_${MONTHS_EN[m - 1]} ${dd}`; };
-const path = (id, lg, orig) => '/' + id + (lg === orig ? '' : '/' + lg);
+const path = (id, lg, orig) => '/' + id + '/' + (lg === orig ? '' : lg + '/');
 
 const pages = [];   // { id, lang, orig, p (localized), path }
 for (const p0 of POSTS) {
@@ -40,16 +52,16 @@ const descOf = p => clip(plain(p.dek) || bodyText(p).join(' ').trim() || plain(p
 
 function article(pg) {
   const { p, p0, orig, lang } = pg, kind = p.kind;
-  let h = `<article class="post" lang="${lang}">\n<p><a href="/">rony.blog</a></p>\n<p class="when"><time datetime="${p.date}">${dateLabel(p.date, lang)}</time></p>\n`;
-  h += kind === 'note' ? '' : `<h1>${p.title}</h1>\n`;
+  let h = `<article class="post" lang="${lang}">\n<p><a href="${HOME[lang].path}">rony.blog</a></p>\n<p class="when"><time datetime="${p.date}">${dateLabel(p.date, lang)}</time></p>\n`;
+  h += `<h1>${p.title}</h1>\n`;
   if (p.dek) h += `<p class="dek">${p.dek}</p>\n`;
   if (p.auto) {
-    const o = '/' + p.id;
+    const o = path(p.id, orig, orig);
     h += lang === 'fr'
       ? `<p class="auto">Traduction automatique de l’${NAME_FR[orig]}. <a href="${o}">Lire l’original</a>.</p>\n`
       : `<p class="auto">Translated automatically from ${NAME[orig]}. <a href="${o}">Read the original</a>.</p>\n`;
   }
-  for (const s of p.slides) {
+  for (const s of kind === 'note' ? [] : p.slides) {
     if (s.t) h += [].concat(s.t).map(t => `<p>${t}</p>`).join('\n') + '\n';
     else if (s.h) h += `<h2>${[].concat(s.h).join(" ")}</h2>\n`;
     else if (s.poem) h += `<p>${[].concat(s.poem).join('<br>\n')}</p>\n`;
@@ -59,103 +71,119 @@ function article(pg) {
   return h + '</article>';
 }
 
-function head(pg) {
-  if (!pg) {
-    const ld = [
-      { '@context': 'https://schema.org', '@type': 'Blog', name: 'rony.blog', url: SITE + '/', description: TAGLINE, inLanguage: ['en', 'fr'], author: AUTHOR },
-      { '@context': 'https://schema.org', '@type': 'WebSite', name: 'rony.blog', url: SITE + '/', inLanguage: ['en', 'fr'], publisher: AUTHOR },
-      { '@context': 'https://schema.org', ...AUTHOR, mainEntityOfPage: 'https://www.ronyefrat.work/', workExample: { '@type': 'Blog', url: SITE + '/' } }
-    ];
-    return `<title>rony.blog</title>
-<meta name="description" content="${TAGLINE}">
-<meta name="author" content="Rony Efrat">
-<link rel="author" href="https://www.ronyefrat.work/">
-<meta name="robots" content="index, follow, max-image-preview:large">
-<link rel="canonical" href="${SITE}/">
-<link rel="alternate" type="application/rss+xml" title="rony.blog" href="/feed.xml">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="rony.blog">
-<meta property="og:title" content="rony.blog">
-<meta property="og:description" content="${TAGLINE}">
-<meta property="og:image" content="${SITE}/icon-512.png">
-<meta property="og:url" content="${SITE}/">
-<meta name="twitter:card" content="summary">
-<script type="application/ld+json">${JSON.stringify(ld)}</script>`;
-  }
-  const { p, p0, lang, orig } = pg, url = SITE + pg.path, t = plain(p.title), desc = descOf(p);
-  const alts = pages.filter(x => x.p0 === p0);
-  const hreflang = alts.map(x => `<link rel="alternate" hreflang="${x.lang}" href="${SITE + x.path}">`).join('\n') +
-    `\n<link rel="alternate" hreflang="x-default" href="${SITE}/${p.id}">`;
-  const ld = {
-    '@context': 'https://schema.org', '@type': 'BlogPosting', headline: clip(t, 110), description: desc, url,
-    mainEntityOfPage: url, datePublished: p.date, dateModified: p.date, inLanguage: lang, genre: p.kind,
-    image: `${SITE}/media/og-${p.id}.png`, author: AUTHOR, publisher: AUTHOR,
-    isPartOf: { '@type': 'Blog', name: 'rony.blog', url: SITE + '/' }
-  };
-  if (p.auto) { ld.translator = { '@type': 'Organization', name: 'Automatic translation' }; ld.translationOfWork = { '@type': 'CreativeWork', url: `${SITE}/${p.id}`, inLanguage: orig }; }
-  return `<title>${esc(t)} · rony.blog</title>
+const meta = ({ title, desc, ogDesc, url, lang, type, image, imageAlt, card, alts, ld, extra = '' }) => `<title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
 <meta name="author" content="Rony Efrat">
 <link rel="author" href="https://www.ronyefrat.work/">
-<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
 <link rel="canonical" href="${url}">
-${hreflang}
-<meta property="og:type" content="article">
-<meta property="og:site_name" content="rony.blog">
-<meta property="og:title" content="${esc(t)}">
-<meta property="og:description" content="${esc(desc)}">
-<meta property="og:url" content="${url}">
-<meta property="og:locale" content="${lang === 'fr' ? 'fr_FR' : 'en_GB'}">
-<meta property="og:image" content="${SITE}/media/og-${p.id}.png">
-<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
-<meta property="article:published_time" content="${p.date}">
-<meta name="twitter:card" content="summary_large_image">
+${alts.map(([l, u]) => `<link rel="alternate" hreflang="${l}" href="${u}">`).join('\n')}
 <link rel="alternate" type="application/rss+xml" title="rony.blog" href="/feed.xml">
+<meta property="og:type" content="${type}">
+<meta property="og:site_name" content="rony.blog">
+<meta property="og:locale" content="${LOCALE[lang]}">
+${alts.filter(([l]) => l !== lang && l !== 'x-default').map(([l]) => `<meta property="og:locale:alternate" content="${LOCALE[l]}">`).join('\n')}
+<meta property="og:title" content="${esc(title)}">
+<meta property="og:description" content="${esc(ogDesc)}">
+<meta property="og:url" content="${url}">
+<meta property="og:image" content="${image}">
+<meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="${esc(imageAlt)}">
+${extra}<meta name="twitter:card" content="${card}">
+<meta name="twitter:title" content="${esc(title)}">
+<meta name="twitter:description" content="${esc(ogDesc)}">
+<meta name="twitter:image" content="${image}">
+<meta name="twitter:image:alt" content="${esc(imageAlt)}">
 <script type="application/ld+json">${JSON.stringify(ld)}</script>`;
+
+const homeAlts = [['en', SITE + '/'], ['fr', SITE + '/fr/'], ['x-default', SITE + '/']];
+function head(pg, lg = 'en') {
+  if (!pg) {
+    const H = HOME[lg], url = SITE + H.path;
+    const ld = { '@context': 'https://schema.org', '@graph': [
+      { '@type': 'Blog', '@id': BLOG_ID, name: 'rony.blog', url: SITE + '/', description: H.desc, inLanguage: ['en', 'fr'], author: AUTHOR, publisher: AUTHOR,
+        blogPost: POSTS.map(p => ({ '@id': SITE + path(p.id, p.lang || 'en', p.lang || 'en') + '#post' })) },
+      { '@type': 'WebSite', '@id': SITE + '/#website', name: 'rony.blog', url: SITE + '/', inLanguage: ['en', 'fr'], publisher: AUTHOR, author: AUTHOR },
+      { '@type': 'WebPage', '@id': url + '#page', url, name: H.title, inLanguage: lg, isPartOf: { '@id': SITE + '/#website' }, about: { '@id': BLOG_ID } },
+      PERSON
+    ] };
+    return meta({ title: H.title, desc: H.desc, ogDesc: H.og, url, lang: lg, type: 'website', image: SITE + '/media/og-home.png',
+      imageAlt: lg === 'fr' ? 'Le pentagone de rony.blog sur fond vert' : 'The rony.blog pentagon on green', card: 'summary_large_image', alts: homeAlts, ld });
+  }
+  const { p, p0, lang, orig } = pg, url = SITE + pg.path, t = plain(p.title), desc = descOf(p);
+  const alts = pages.filter(x => x.p0 === p0).map(x => [x.lang, SITE + x.path]).concat([['x-default', SITE + path(p.id, orig, orig)]]);
+  const post = {
+    '@type': 'BlogPosting', '@id': url + '#post', headline: clip(t, 110), description: desc, url,
+    mainEntityOfPage: url, datePublished: p.date, dateModified: p.date, inLanguage: lang,
+    genre: { essay: 'Essay', poem: 'Poetry', prose: 'Prose', note: 'Note' }[p.kind] || p.kind,
+    image: `${SITE}/media/og-${p.id}.png`, author: AUTHOR, publisher: AUTHOR, isPartOf: { '@id': BLOG_ID },
+    wordCount: bodyText(p).join(' ').split(/\s+/).filter(Boolean).length
+  };
+  if (p.auto) {
+    post.translationOfWork = { '@id': SITE + path(p.id, orig, orig) + '#post' };
+    post.translator = { '@type': 'Organization', name: 'Automatic translation' };
+  } else {
+    const tr = pages.filter(x => x.p0 === p0 && x.lang !== orig);
+    if (tr.length) post.workTranslation = tr.map(x => ({ '@id': SITE + x.path + '#post' }));
+  }
+  if (p.also) post.sameAs = p.also.map(x => x.href);
+  const ld = { '@context': 'https://schema.org', '@graph': [post, { '@type': 'Blog', '@id': BLOG_ID, name: 'rony.blog', url: SITE + '/' }, PERSON] };
+  return meta({ title: `${p.kind === 'note' ? clip(t, 70) : t} ⋮ rony.blog`, desc, ogDesc: desc, url, lang, type: 'article', image: `${SITE}/media/og-${p.id}.png`,
+    imageAlt: lang === 'fr' ? `Le dessin de « ${clip(t, 80)} » sur fond vert` : `The drawing for “${clip(t, 80)}” on green`,
+    card: 'summary_large_image', alts, ld,
+    extra: `<meta property="article:published_time" content="${p.date}">\n<meta property="article:author" content="https://www.ronyefrat.work/">\n<meta property="article:section" content="${p.kind}">\n` });
 }
 
 // ---- the template is index.html with its seo and feed regions swapped
 const region = (s, name, inner) => s.replace(new RegExp(`(<!--${name}:start-->)[\\s\\S]*?(<!--${name}:end-->)`), `$1\n${inner}\n$2`);
-const listing = () => '<nav aria-label="posts"><ul>\n' + [...POSTS].sort((x, y) => y.date.localeCompare(x.date)).map(p => {
-  const l = localize(p, p.lang || 'en');
-  return `<li><time datetime="${p.date}">${dateLabel(p.date, l.lang)}</time> <a href="/${p.id}">${plain(l.title)}</a></li>`;
+const listing = lg => `<nav aria-label="${HOME[lg].nav}"><ul>\n` + [...POSTS].sort((x, y) => y.date.localeCompare(x.date)).map(p => {
+  const orig = p.lang || 'en', has = pages.some(x => x.p0 === p && x.lang === lg), l = localize(p, has ? lg : orig);
+  return `<li><time datetime="${p.date}">${dateLabel(p.date, l.lang)}</time> <a href="${path(p.id, l.lang, orig)}" hreflang="${l.lang}">${plain(l.title)}</a></li>`;
 }).join('\n') + '\n</ul></nav>';
 
 if (!src.includes('<!--seo:start-->')) throw new Error('index.html needs the <!--seo--> and <!--feed--> markers');
-src = region(src, 'seo', head(null));
-src = region(src, 'feed', listing());
+src = region(src, 'seo', head(null, 'en'));
+src = region(src, 'feed', listing('en'));
+src = src.replace(/<html lang="[a-z]+">/, '<html lang="en">');
 fs.writeFileSync('index.html', src);
 
 const write = (f, s) => { fs.mkdirSync(f.replace(/\/[^/]*$/, '') || '.', { recursive: true }); fs.writeFileSync(f, s); };
 for (const id of new Set(POSTS.map(p => p.id))) for (const lg of ['en', 'fr']) fs.rmSync(`${id}/${lg}`, { recursive: true, force: true });
+{
+  let s = region(src, 'seo', head(null, 'fr'));
+  s = region(s, 'feed', listing('fr'));
+  write('fr/index.html', s.replace(/<html lang="[a-z]+">/, '<html lang="fr">'));
+}
 for (const pg of pages) {
   let s = region(src, 'seo', head(pg));
   s = region(s, 'feed', article(pg));
   s = s.replace(/<html lang="[a-z]+">/, `<html lang="${pg.lang}">`);
-  write(pg.path.slice(1) + '/index.html', s);
+  write(pg.path.slice(1) + 'index.html', s);
 }
 
 // ---- the first addresses, forwarded
 for (const [old, now] of Object.entries(LEGACY)) {
   for (const sub of ['', 'en/', 'fr/']) {
-    const to = `/${now}${sub ? '/' + sub.slice(0, 2) : ''}`;
+    const to = `/${now}/${sub}`;
     const known = pages.some(x => x.path === to);
+    const dest = known ? to : `/${now}/`;
     write(`${old}/${sub}index.html`, `<!doctype html>
 <html><head><meta charset="utf-8"><title>rony.blog</title>
-<meta http-equiv="refresh" content="0; url=${known ? to : '/' + now}">
-<link rel="canonical" href="${SITE}${known ? to : '/' + now}">
+<meta http-equiv="refresh" content="0; url=${dest}">
+<link rel="canonical" href="${SITE}${dest}">
 <meta name="robots" content="noindex">
-<script>location.replace('${known ? to : '/' + now}')</script></head>
-<body><a href="${known ? to : '/' + now}">rony.blog</a></body></html>
+<script>location.replace('${dest}')</script></head>
+<body><a href="${dest}">rony.blog</a></body></html>
 `);
   }
 }
 
 // ---- sitemap, robots, feed
+const latest = POSTS.map(p => p.date).sort().pop();
 const sm = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
-<url><loc>${SITE}/</loc></url>
-${pages.map(pg => `<url><loc>${SITE + pg.path}</loc><lastmod>${pg.p.date}</lastmod>\n${pages.filter(x => x.p0 === pg.p0).map(x => `  <xhtml:link rel="alternate" hreflang="${x.lang}" href="${SITE + x.path}"/>`).join('\n')}\n</url>`).join('\n')}
+${['/', '/fr/'].map(h => `<url><loc>${SITE + h}</loc><lastmod>${latest}</lastmod>\n${homeAlts.map(([l, u]) => `  <xhtml:link rel="alternate" hreflang="${l}" href="${u}"/>`).join('\n')}\n</url>`).join('\n')}
+${pages.map(pg => `<url><loc>${SITE + pg.path}</loc><lastmod>${pg.p.date}</lastmod>\n${pages.filter(x => x.p0 === pg.p0).map(x => `  <xhtml:link rel="alternate" hreflang="${x.lang}" href="${SITE + x.path}"/>`).concat([`  <xhtml:link rel="alternate" hreflang="x-default" href="${SITE + path(pg.p.id, pg.orig, pg.orig)}"/>`]).join('\n')}\n</url>`).join('\n')}
 </urlset>
 `;
 fs.writeFileSync('sitemap.xml', sm);

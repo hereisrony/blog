@@ -48,11 +48,14 @@ to deploy from the `main` branch, root folder.
 ## Search and sharing
 
 `tools/build.mjs` reads `POSTS` and `TR` from `index.html` and writes the static
-side: a full page for every post and language (`<id>/index.html`,
-`<id>/en/`, `<id>/fr/`) with its own title, description, canonical address,
+side: the home page in English (`/`) and French (`/fr/`), a full page for
+every post and language (`<id>/`, `<id>/en/`, `<id>/fr/`, always with the
+trailing slash) with its own title, description, canonical address,
 `hreflang` links, share card and `BlogPosting` data, plus `sitemap.xml`,
-`robots.txt` and `feed.xml`. The author is named only in this hidden data
-(Rony Efrat, linked to https://www.ronyefrat.work/), never on screen.
+`robots.txt` and `feed.xml`. The author is named only in this hidden data and
+in search descriptions, never on screen: the structured data points to the
+same person as ronyefrat.work (`https://www.ronyefrat.work/#person`), so the
+two sites read as one author.
 
 Run it after adding or editing a post, then commit everything it wrote:
 
