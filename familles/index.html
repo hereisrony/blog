@@ -1125,7 +1125,7 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
     const m = txt.slice(0, 300).match(/^[\s\S]*[.!?](?=\s)/);
     return m ? m[0] + ' …' : txt.slice(0, 300).replace(/\s+\S*$/, '') + ' …';
   };
-  let filter = 'all';
+  let filter = 'essay';
   function feed() {
     document.getElementById('intro').hidden = false;
     document.getElementById('colophon').hidden = false;
@@ -1136,7 +1136,7 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
     const C = L[lang].cats;
     const word = (k) => `<button type="button" class="word" data-f="${k}" aria-pressed="${filter === k}">${C[k]}</button>`;
     const lw = (x) => `<button type="button" class="word" data-lang="${x}" aria-pressed="${lang === x}" lang="${x}">${x}</button>`;
-    let h = `<nav class="forms" aria-label="${lang === 'fr' ? 'Formes' : 'Forms'}">${['all', 'essay', 'poem', 'prose', 'note'].map(word).join('')}<span class="spacer"></span>${lw('en')}<span class="sep">/</span>${lw('fr')}</nav><div class="feed">`;
+    let h = `<nav class="forms" aria-label="${lang === 'fr' ? 'Formes' : 'Forms'}">${['essay', 'poem', 'prose', 'note'].map(word).join('')}<span class="spacer"></span>${lw('en')}<span class="sep">/</span>${lw('fr')}</nav><div class="feed">`;
     const shown = items.filter(it => filter === 'all' || filter === it.kind);
     if (!shown.length) h += `<p class="none">${L[lang].empty}</p>`;
     for (const it of shown) {
