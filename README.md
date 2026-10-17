@@ -59,3 +59,10 @@ Run it after adding or editing a post, then commit everything it wrote:
 ```
 node tools/build.mjs
 ```
+
+## Icons
+
+Every icon tile is cut to the pentagon of the site icon (the `--pent` shape in
+`index.html`), with the drawing inside. Only the site icon itself (header mark,
+tab icon, home-screen icon) is a green square with the pentagon in it. A new
+icon needs nothing extra: give a post a `glyph` and the tile takes the shape.
