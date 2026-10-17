@@ -357,6 +357,7 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
 .teaser .poem { margin-top: 2px; }
 .note-line { margin: 0; font-size: 20px; font-weight: 700; line-height: 1.35; max-width: 34ch; text-wrap: balance; }
 .note-line a:hover { background: var(--accent); color: var(--on-accent); }
+#stage.plain mark { background: none; color: inherit; padding: 0; }
 #stage a { font-weight: 700; }
 #stage a:hover { background: var(--accent); color: var(--on-accent); }
 /* every drawing is printed, not drawn: ragged edges and a little ink loss */
@@ -512,7 +513,7 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
   // t = text slide (paragraphs), i = image, v = clip.
   const POSTS = [
     {
-      id: 'whittaker', glyph: 'whittaker',
+      id: 'whittaker', plain: true, glyph: 'whittaker',
       also: [{ label: 'Instagram', href: 'https://www.instagram.com/p/DehZfp7DLAR/' }],
       date: '2026-10-15',
       title: 'Next semester, I’m opening my critical theory class with the first 9 minutes of this BBC interview with Meredith Whittaker.',
@@ -556,7 +557,7 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
       ]
     },
     {
-      id: 'ai-art', glyph: 'keane',
+      id: 'ai-art', plain: true, glyph: 'keane',
       also: [{ label: 'Instagram', href: 'https://www.instagram.com/p/DeMsxhIDCb5/' }],
       date: '2026-10-07',
       title: 'Don’t use AI to make art. Use childhood trauma like a real artist.',
@@ -1300,7 +1301,7 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
         <span class="spacer"></span>
         ${p.kind === 'note' ? '' : `<span class="modes" role="group" aria-label="${p.lang === 'fr' ? 'Mode de lecture' : 'Reading mode'}"><button type="button" class="word" data-m="read" aria-pressed="${mode === 'read'}">${W.read}</button><span class="sep">/</span><button type="button" class="word" data-m="swipe" aria-pressed="${mode === 'swipe'}">${W.swipe}</button></span>`}
       </div>
-      ${p.kind === 'note' ? '' : `<div id="stage" lang="${p.lang}">${mode === 'swipe' ? swipeHTML(p) : readHTML(p)}</div>`}
+      ${p.kind === 'note' ? '' : `<div id="stage" lang="${p.lang}"${p.plain ? ' class="plain"' : ''}>${mode === 'swipe' ? swipeHTML(p) : readHTML(p)}</div>`}
       ${also}
       <section class="origin" aria-label="Take it to socials" lang="en">
         <div class="kit-head">
