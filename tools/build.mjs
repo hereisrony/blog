@@ -13,9 +13,9 @@ const AUTHOR = { '@id': PERSON_ID };
 const BLOG_ID = 'https://rony.blog/#blog';
 const HOME = {
   en: { path: '/', title: 'rony.blog ⋮ essays, poems, prose and notes', og: 'Essays, poems, prose and notes, in English and French.',
-        desc: 'Essays, poems, prose and notes by Rony Efrat, written in English and French, each with an automatic translation.', nav: 'posts' },
+        desc: 'Essays, poems, prose and notes, written in English and French, each with an automatic translation.', nav: 'posts' },
   fr: { path: '/fr/', title: 'rony.blog ⋮ essais, poèmes, prose et notes', og: 'Essais, poèmes, prose et notes, en français et en anglais.',
-        desc: 'Essais, poèmes, prose et notes de Rony Efrat, écrits en français et en anglais, chacun avec une traduction automatique.', nav: 'publications' }
+        desc: 'Essais, poèmes, prose et notes, écrits en français et en anglais, chacun avec une traduction automatique.', nav: 'publications' }
 };
 const TAGLINE = HOME.en.og;
 const LOCALE = { en: 'en_GB', fr: 'fr_FR' };
