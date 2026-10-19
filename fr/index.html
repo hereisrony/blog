@@ -34,12 +34,13 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png">
 <link rel="apple-touch-icon" href="/apple-touch-icon.png">
-<meta name="theme-color" content="#00ff33">
+<meta name="theme-color" content="#0c0f0c">
+<meta name="color-scheme" content="dark">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inconsolata:wght@400;700&family=Caveat:wght@700&display=swap">
 <style>
-html { -webkit-text-size-adjust: 100%; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
+html { background: #0c0f0c; color-scheme: dark; -webkit-text-size-adjust: 100%; padding-top: env(safe-area-inset-top, 0px); padding-bottom: env(safe-area-inset-bottom, 0px); }
 body { margin: 0; }
 img { max-width: 100%; }
 [hidden] { display: none !important; }
@@ -52,25 +53,16 @@ html:not(.author) .mast { gap: 0; }
    written once and read two ways: as a page (read) or as panels (swipe).
    Green is a ground for black type, never a colour for letters. */
 :root {
-  --ink: #000000;
-  --ink-soft: #6f766f;
-  --rule: #d3dad3;
-  --paper: #ffffff;
-  --tint: #f3f6f3;
+  --ink: #eef2ee;
+  --ink-soft: #95a095;
+  --rule: #2b322b;
+  --paper: #0c0f0c;
+  --tint: #151a15;
   --accent: #00ff33;
   --on-accent: #000000;
   --mono: Consolas, Inconsolata, Menlo, Monaco, "Courier New", monospace;
   --hand: Caveat, "Bradley Hand", "Segoe Print", cursive;
   --ease: cubic-bezier(0.165, 0.84, 0.44, 1);
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --ink: #eef2ee; --ink-soft: #95a095; --rule: #2b322b; --paper: #0c0f0c; --tint: #151a15;
-    color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
-  --ink: #eef2ee; --ink-soft: #95a095; --rule: #2b322b; --paper: #0c0f0c; --tint: #151a15;
   color-scheme: dark;
 }
 
