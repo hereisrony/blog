@@ -9,7 +9,7 @@ JavaScript, served by GitHub Pages. No build step, no dependencies.
 index.html            the whole blog: the posts, the reader, the switches
 media/                images (WebP) and clips (MP4) the posts use
 library.svg           icons drawn for the blog and not yet given a job
-favicon.svg  favicon-16.png  favicon-32.png
+favicon.svg  favicon.ico  favicon-16.png  favicon-32.png  favicon-48.png  favicon-192.png
 apple-touch-icon.png  icon-512.png      the pentagon, on #00FF33
 <post>/  <post>/en/  <post>/fr/         short addresses that open a post,
                                         in a given language
