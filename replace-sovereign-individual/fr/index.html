@@ -563,7 +563,7 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
   // t = text slide (paragraphs), i = image, v = clip.
   const POSTS = [
     {
-      id: 'replace-sovereign-individual', glyph: 'eagle', lang: 'en', kind: 'essay', numbered: false, previewDek: true,
+      id: 'replace-sovereign-individual', glyph: 'eagle', lang: 'en', kind: 'essay', numbered: false, previewDek: true, swipeChars: 230, minutes: 3,
       date: '2026-11-11',
       title: 'replaceAll("sovereign individual")',
       dek: 'Generative video tools now let you swap a person out of existing footage. Tracing the idea back led me to a Brazilian influencer, to the rules companies write for themselves, and to a book from 1997.',
@@ -1249,8 +1249,19 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
 
   // What swipe shows, panel by panel. Posts written for the blog split their
   // text into one paragraph per panel; carousel-born posts keep their slides.
+  // Sentences packed into panels of at most `max` characters; a lone longer sentence keeps its own panel.
+  const packSentences = (html, max) => {
+    const out = [];
+    for (const s of html.split(/(?<=[.!?”])\s+(?=[A-Z“<])/)) {
+      const last = out[out.length - 1];
+      if (last && plain(last).length + plain(s).length < max) out[out.length - 1] = last + ' ' + s;
+      else out.push(s);
+    }
+    return out;
+  };
   function units(p) {
     if (p.numbered !== false) return p.slides;
+    if (p.swipeChars) return p.slides.flatMap(s => s.t ? s.t.flatMap(x => packSentences(x, p.swipeChars).map(t => ({ t: [t] }))) : [s]);
     const out = [];
     for (const u of p.slides.flatMap(s => s.t ? s.t.map(x => ({ t: [x] })) : [s])) {
       const last = out[out.length - 1];
