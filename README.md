@@ -63,6 +63,16 @@ Run it after adding or editing a post, then commit everything it wrote:
 node tools/build.mjs
 ```
 
+## Visit counts
+
+Page visits are counted with [GoatCounter](https://www.goatcounter.com): no cookies, no
+personal data, paths and a few events only (a post opened, its language, read or
+swipe, a clip played). It is off until `GC_CODE` in `index.html` is set to the
+subdomain of `<code>.goatcounter.com`, then run `node tools/build.mjs`. It never
+counts the author (`?kit`), visitors who send Do Not Track, or crawlers. The numbers
+are on the GoatCounter dashboard; paths read `/post/`, `/post/fr/`, `mode/swipe/post`
+and `clip/name`.
+
 ## Icons
 
 Every icon tile is cut to the pentagon of the site icon (the `--pent` shape in

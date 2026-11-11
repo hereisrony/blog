@@ -1463,12 +1463,12 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
 
     view.querySelectorAll('[data-m]').forEach(b => b.addEventListener('click', () => {
       store.set('nb-mode', b.dataset.m);
-      post(p0, b.dataset.m);
+      post(p0, b.dataset.m); hit('mode/' + b.dataset.m + '/' + p0.id, 'view: ' + b.dataset.m, true);
     }));
     view.querySelectorAll('[data-l]').forEach(b => b.addEventListener('click', () => {
       setLang(b.dataset.l);
       try { history.pushState(null, '', clean(target(p0.id, b.dataset.l))); } catch (e) {}
-      post(p0, mode);
+      post(p0, mode); hit(location.pathname, document.title);
     }));
     view.querySelectorAll('.copy').forEach(b => b.addEventListener('click', () => {
       const ta = document.getElementById(b.dataset.for), msg = b.parentElement.querySelector('.copied');
@@ -1487,7 +1487,7 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
   // one clip plays at a time
   function wireVideos() {
     const vids = [...view.querySelectorAll('video:not(.loop)')];
-    vids.forEach(v => v.addEventListener('play', () => vids.forEach(o => { if (o !== v) o.pause(); })));
+    vids.forEach(v => v.addEventListener('play', () => { vids.forEach(o => { if (o !== v) o.pause(); }); const m = /([\w-]+)\.mp4/.exec((v.querySelector('source') || {}).src || ''); if (m && !v.dataset.counted) { v.dataset.counted = '1'; hit('clip/' + m[1], 'clip played', true); } }));
     wireLoops();
   }
 
@@ -1544,6 +1544,23 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
     update();
   }
 
+  // ---- visit counts -------------------------------------------------------
+  // GoatCounter: cookieless, counts paths and a few events, nothing personal. Off until GC_CODE (the subdomain of
+  // <code>.goatcounter.com) is set. Never counts the author (?kit), visitors who send Do Not Track, or crawlers.
+  const GC_CODE = '';
+  const counting = !!GC_CODE && !AUTHOR && navigator.doNotTrack !== '1' && !/bot|crawl|spider|slurp|preview|lighthouse/i.test(navigator.userAgent);
+  const gcQueue = [];
+  const hit = (path, title, event) => {
+    if (!counting) return;
+    if (window.goatcounter && window.goatcounter.count) { try { window.goatcounter.count({ path, title, event: !!event }); } catch (e) {} } else gcQueue.push([path, title, event]);
+  };
+  if (counting) {
+    const s = document.createElement('script'); s.async = true; s.src = 'https://gc.zgo.at/count.js';
+    s.dataset.goatcounter = 'https://' + GC_CODE + '.goatcounter.com/count'; s.dataset.goatcounterSettings = JSON.stringify({ no_onload: true });
+    s.onload = () => { while (gcQueue.length) hit(...gcQueue.shift()); };
+    document.head.appendChild(s);
+  }
+
   // ---- routing (bare #id only) -------------------------------------------
   const view = document.getElementById('view');
   // the address bar always shows the short address (rony.blog/talent), the one that carries the preview
@@ -1581,6 +1598,7 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
       document.documentElement.lang = lang;
     }
     if (p) document.documentElement.lang = lang;
+    hit(location.pathname, document.title);
   }
   addEventListener('hashchange', route);
   addEventListener('popstate', route);
