@@ -1469,8 +1469,24 @@ h2.year { font-size: 13px; font-weight: 700; letter-spacing: .3em; color: var(--
 
   // one clip plays at a time
   function wireVideos() {
-    const vids = [...view.querySelectorAll('video')];
+    const vids = [...view.querySelectorAll('video:not(.loop)')];
     vids.forEach(v => v.addEventListener('play', () => vids.forEach(o => { if (o !== v) o.pause(); })));
+    wireLoops();
+  }
+
+  // Loops play only while on screen, stay still for reduced motion, and a tap starts or stops one.
+  function wireLoops() {
+    const loops = [...view.querySelectorAll('video.loop')];
+    if (!loops.length) return;
+    const still = matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      const v = e.target;
+      if (e.isIntersecting && !still) { v.muted = true; const p = v.play(); if (p) p.catch(() => {}); } else v.pause();
+    }), { threshold: 0.5 });
+    loops.forEach(v => {
+      io.observe(v);
+      v.addEventListener('click', () => { if (v.paused) v.play().catch(() => {}); else v.pause(); });
+    });
   }
 
   function wireSwipe() {
