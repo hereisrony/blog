@@ -570,10 +570,10 @@ holding on with its teeth.</p>
   // t = text slide (paragraphs), i = image, v = clip.
   const POSTS = [
     {
-      id: 'replace-sovereign-individual', glyph: 'eagle', lang: 'en', kind: 'essay', numbered: false,
+      id: 'replace-sovereign-individual', glyph: 'eagle', lang: 'en', kind: 'essay', numbered: false, previewDek: true,
       date: '2026-11-11',
       title: 'replaceAll("sovereign individual")',
-      dek: 'What a Brazilian influencer who never existed can tell us about the increasingly thin line between creative freedom and corporate authority, and why democracy has some catching up to do.',
+      dek: 'Generative video tools now let you swap a person out of existing footage. Tracing the idea back led me to a Brazilian influencer, to the rules companies write for themselves, and to a book from 1997.',
       tags: '#generativeAI #deepfakes',
       slides: [
         { t: ['Post-production has spent a century making things disappear. This once meant tracking and painting individual frames for weeks. Generative hubs now bundle models developed elsewhere and charge for access to techniques that once required an entire VFX department. As training a competitive frontier model remains beyond the resources of almost everyone, these tools might seem to be a gift. Some of them let you replace a person in existing footage while preserving the camera movement. But that’s a rather peculiar feature for the average video creator. I wondered where the idea came from and went sniffing a bit.'] },
@@ -922,7 +922,7 @@ holding on with its teeth.</p>
   const TR = {
     'replace-sovereign-individual': { fr: {
       title: 'replaceAll("sovereign individual")',
-      dek: 'Ce qu’une influenceuse brésilienne qui n’a jamais existé peut nous dire de la frontière de plus en plus mince entre liberté créative et autorité des entreprises, et pourquoi la démocratie a du rattrapage à faire.',
+      dek: 'Les outils vidéo génératifs permettent désormais de remplacer une personne dans une séquence existante. En remontant à l’origine de l’idée, on tombe sur une influenceuse brésilienne, sur les règles que les entreprises s’écrivent à elles-mêmes, et sur un livre de 1997.',
       slides: [
         ['La postproduction passe depuis un siècle son temps à faire disparaître des choses. Cela voulait dire autrefois suivre et retoucher des images une à une pendant des semaines. Des plateformes génératives regroupent désormais des modèles développés ailleurs et font payer l’accès à des techniques qui exigeaient jadis tout un service d’effets visuels. Comme entraîner un modèle de pointe compétitif reste hors de portée de presque tout le monde, ces outils pourraient passer pour un cadeau. Certains permettent de remplacer une personne dans une séquence existante tout en conservant le mouvement de caméra. Mais c’est une fonctionnalité assez curieuse pour le créateur de vidéos moyen. Je me suis demandé d’où venait l’idée et j’ai un peu fouiné.'],
         ['Voici Julia Berlli Cortez, influenceuse brésilienne au calendrier chargé d’apparitions politiques, sans en avoir honoré aucune. Dans des vidéos d’événements réels, Julia dansait aux côtés de responsables politiques, à la place de quelqu’un d’autre. Son personnage synthétique a rassemblé plus d’un demi-million d’abonnés sur Instagram et les a dirigés vers du contenu adulte payant. <a href="https://noticias.uol.com.br/comprova/ultimas-noticias/2026/10/23/desinformacao-loirona-do-flavio-ia-atos-politicos-conteudo-adulto.ghtm" target="_blank" rel="noopener">Des journalistes brésiliens ont identifié</a> Genjutsu, de Higgsfield, parmi les outils impliqués. Rien ne prouve que Higgsfield ait aidé à créer ces vidéos. Cela dit, les cinéastes n’étaient pas les seuls à s’intéresser à cet outil.'],
@@ -1180,6 +1180,7 @@ holding on with its teeth.</p>
     return groups.map(g => `<p class="stanza">${g.map(l => `<span class="line">${l}</span>`).join('')}</p>`).join('');
   };
   const teaser = p => {
+    if (p.previewDek && p.dek) return p.dek;
     const t = p.slides.find(x => x.t).t[0];
     if (p.kind !== 'prose') return t;
     if (t.includes('<br>')) { const ls = t.split('<br>'); return ls.length > 3 ? ls.slice(0, 3).join('<br>') + ' …' : t; }
